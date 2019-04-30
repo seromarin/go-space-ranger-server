@@ -1,5 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseInterceptors, Param } from '@nestjs/common';
 import { MissionsService } from './missions.service';
+import { classToPlain } from 'class-transformer';
+import { DataInterceptor } from 'src/util/data.interceptor';
+import { Mission } from 'src/models/mission.model';
 
 @Controller('missions')
 export class MissionsController {
@@ -9,8 +12,15 @@ export class MissionsController {
   ) { }
 
   @Get()
-  getMissions() {
-    return this.missionService.getMissions();
+  async getMissions() {
+    const missionEntities = await this.missionService.getMissions();
+    const missions = classToPlain(missionEntities);
+    return missions;
+  }
+
+  @Get(':id')
+  async getMission(@Param('id') id: number) {
+    return this.missionService.getMission(id);
   }
 
 }
